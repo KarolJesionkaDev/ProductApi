@@ -18,3 +18,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::apiResource('products', 'ProductController');
+Route::get('products/amount/{amount}/{operator?}', 'ProductController@indexWhere')->name('products.indexWhere');

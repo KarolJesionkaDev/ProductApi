@@ -19,6 +19,34 @@ class ProductController extends Controller
     }
 
     /**
+     * Display a listing of the resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function indexWhere(Request $request, $amount, $operator = null)
+    {
+        $products = [];
+        if($operator) {
+            switch ($operator) {
+                case -1:
+                    $operator = '<';
+                    break;
+                case 0:
+                    $operator = '=';
+                    break;
+                case 1:
+                    $operator = '>';
+                    break;
+            }
+            $products = Product::where('amount', $operator, $amount)->get();
+        } else {
+            $products = Product::where('amount', $amount)->get();
+        }
+        return ProductResource::collection($products);
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -42,7 +70,7 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        return new ProductResource(Product::find($id));
+        return new ProductResource(Product::findOrFail($id));
     }
 
     /**
@@ -54,7 +82,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $product = Product::find($id);
+        $product = Product::findOrFail($id);
         $product->update($request->only(['name', 'amount']));
 
         return new ProductResource($product);
@@ -68,7 +96,7 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $product = Product::find($id);
+        $product = Product::findOrFail($id);
         $product->delete();
 
         return response()->json(null, 204);
