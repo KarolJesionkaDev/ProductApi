@@ -6,29 +6,32 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Http\Resources\ProductResource;
 use App\Repositories\ProductRepository;
+use Illuminate\Http\JsonResponse;
 
 class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $productRepo = new ProductRepository();
         $products = $productRepo->getAll();
 
-        return ProductResource::collection($products);
+        return response()->json($products, 200);
     }
 
     /**
      * Display a listing of the resource.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  int $amount
+     * @param  ?int $operator
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function indexWhere(Request $request, int $amount, int $operator = 0)
+    public function indexWhere(Request $request, int $amount, ?int $operator = 0): JsonResponse
     {
         $productRepo = new ProductRepository();
         $products = [];
@@ -46,16 +49,16 @@ class ProductController extends Controller
                 break;
         }
 
-        return ProductResource::collection($products);
+        return response()->json($products, 200);
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'name' => 'bail|required|alpha_dash|unique:products|max:255',
@@ -67,20 +70,20 @@ class ProductController extends Controller
             'amount' => $request->amount,
         ]);
     
-        return new ProductResource($product);
+        return response()->json($product, 201);
     }
 
     /**
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show(int $id)
+    public function show(int $id): JsonResponse
     {
         $productRepo = new ProductRepository();
 
-        return new ProductResource($productRepo->getById($id));
+        return response()->json($productRepo->getById($id), 200);
     }
 
     /**
@@ -88,9 +91,9 @@ class ProductController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, int $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         $request->validate([
             'name' => 'bail|required|alpha_dash|unique:products|max:255',
@@ -101,16 +104,16 @@ class ProductController extends Controller
         $product = $productRepo->getById($id);
         $product->update($request->only(['name', 'amount']));
 
-        return new ProductResource($product);
+        return response()->json($product, 200);
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(int $id)
+    public function destroy(int $id): JsonResponse
     {
         $productRepo = new ProductRepository();
         $product = $productRepo->getById($id);
