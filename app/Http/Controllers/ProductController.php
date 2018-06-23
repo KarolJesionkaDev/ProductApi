@@ -37,7 +37,7 @@ class ProductController extends Controller
         {
             case -1:
                 $products = $productRepo->getLessThan($amount);
-                 break;
+                break;
             case 1:
                 $products = $productRepo->getMoreThan($amount);
                 break;
@@ -57,6 +57,11 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'bail|required|alpha_dash|unique:products|max:255',
+            'amount' => 'required|integer|min:0',
+        ]);
+
         $product = Product::create([
             'name' => $request->name,
             'amount' => $request->amount,
@@ -87,6 +92,11 @@ class ProductController extends Controller
      */
     public function update(Request $request, int $id)
     {
+        $request->validate([
+            'name' => 'bail|required|alpha_dash|unique:products|max:255',
+            'amount' => 'required|integer|min:0',
+        ]);
+
         $productRepo = new ProductRepository();
         $product = $productRepo->getById($id);
         $product->update($request->only(['name', 'amount']));
