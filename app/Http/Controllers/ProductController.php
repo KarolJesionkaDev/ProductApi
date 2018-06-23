@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Http\Resources\ProductResource;
+use App\Repositories\ProductRepository;
 
 class ProductController extends Controller
 {
@@ -15,7 +16,10 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return ProductResource::collection(Product::all());
+        $productRepo = new ProductRepository();
+        $products = $productRepo->getAll();
+
+        return ProductResource::collection($products);
     }
 
     /**
@@ -24,25 +28,24 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function indexWhere(Request $request, $amount, $operator = null)
+    public function indexWhere(Request $request, int $amount, int $operator = 0)
     {
+        $productRepo = new ProductRepository();
         $products = [];
-        if($operator) {
-            switch ($operator) {
-                case -1:
-                    $operator = '<';
-                    break;
-                case 0:
-                    $operator = '=';
-                    break;
-                case 1:
-                    $operator = '>';
-                    break;
-            }
-            $products = Product::where('amount', $operator, $amount)->get();
-        } else {
-            $products = Product::where('amount', $amount)->get();
+        
+        switch ($operator)
+        {
+            case -1:
+                $products = $productRepo->getLessThan($amount);
+                 break;
+            case 1:
+                $products = $productRepo->getMoreThan($amount);
+                break;
+            default:
+                $products = $productRepo->getJust($amount);
+                break;
         }
+
         return ProductResource::collection($products);
     }
 
@@ -68,9 +71,11 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(int $id)
     {
-        return new ProductResource(Product::findOrFail($id));
+        $productRepo = new ProductRepository();
+
+        return new ProductResource($productRepo->getById($id));
     }
 
     /**
@@ -80,9 +85,10 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
-        $product = Product::findOrFail($id);
+        $productRepo = new ProductRepository();
+        $product = $productRepo->getById($id);
         $product->update($request->only(['name', 'amount']));
 
         return new ProductResource($product);
@@ -94,9 +100,10 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(int $id)
     {
-        $product = Product::findOrFail($id);
+        $productRepo = new ProductRepository();
+        $product = $productRepo->getById($id);
         $product->delete();
 
         return response()->json(null, 204);
