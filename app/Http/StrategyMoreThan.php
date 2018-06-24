@@ -1,15 +1,15 @@
 <?php
 
-namespace App;
+namespace App\Http;
 
-use App\StrategyInterface;
+use App\Http\StrategyInterface;
 use App\Repositories\ProductRepository;
 
-class StrategyLessThan implements StrategyInterface
+class StrategyMoreThan implements StrategyInterface
 {
     public function getProducts(int $amount)
     {
         $productRepo = new ProductRepository();
-        return $productRepo->getLessThan($amount);
+        return $productRepo->getMoreThan($amount);
     }
 }

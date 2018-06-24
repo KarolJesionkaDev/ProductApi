@@ -7,8 +7,8 @@ use App\Models\Product;
 use App\Http\Resources\ProductResource;
 use App\Repositories\ProductRepository;
 use Illuminate\Http\JsonResponse;
-use App\StrategyContext;
-use App\ProductSimpleFactory;
+use App\Http\StrategyContext;
+use App\Http\ProductSimpleFactory;
 
 class ProductController extends Controller
 {

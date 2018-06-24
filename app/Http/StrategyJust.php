@@ -1,8 +1,8 @@
 <?php
 
-namespace App;
+namespace App\Http;
 
-use App\StrategyInterface;
+use App\Http\StrategyInterface;
 use App\Repositories\ProductRepository;
 
 class StrategyJust implements StrategyInterface
