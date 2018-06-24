@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Http\Resources\ProductResource;
 use App\Repositories\ProductRepository;
 use Illuminate\Http\JsonResponse;
+use App\StrategyContext;
 
 class ProductController extends Controller
 {
@@ -31,23 +32,13 @@ class ProductController extends Controller
      * @param  ?int $operator
      * @return \Illuminate\Http\JsonResponse
      */
-    public function indexWhere(Request $request, int $amount, ?int $operator = 0): JsonResponse
+    public function indexWhere(Request $request, int $amount, int $operator = 0): JsonResponse
     {
         $productRepo = new ProductRepository();
         $products = [];
         
-        switch ($operator)
-        {
-            case -1:
-                $products = $productRepo->getLessThan($amount);
-                break;
-            case 1:
-                $products = $productRepo->getMoreThan($amount);
-                break;
-            default:
-                $products = $productRepo->getJust($amount);
-                break;
-        }
+        $strategyContext = new StrategyContext($operator);
+        $products = $strategyContext->getFilteredProducts($amount);
 
         return response()->json($products, 200);
     }
