@@ -8,6 +8,7 @@ use App\Http\Resources\ProductResource;
 use App\Repositories\ProductRepository;
 use Illuminate\Http\JsonResponse;
 use App\StrategyContext;
+use App\ProductSimpleFactory;
 
 class ProductController extends Controller
 {
@@ -56,11 +57,14 @@ class ProductController extends Controller
             'amount' => 'required|integer|min:0',
         ]);
 
-        $product = Product::create([
-            'name' => $request->name,
-            'amount' => $request->amount,
-        ]);
-    
+        $factory = new ProductSimpleFactory();
+        $product = $factory->createProduct();
+
+        $product->setName($request->name);
+        $product->setAmount($request->amount);
+
+        $product->save();
+
         return response()->json($product, 201);
     }
 
